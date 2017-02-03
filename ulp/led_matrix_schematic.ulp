@@ -1,0 +1,81 @@
+//
+// create rows x cols matrix of LEDs
+//
+
+// matrix size
+int rows = 16;
+int cols = 32;
+
+// LED symbol spacing
+real x_pitch = 0.3;
+real y_pitch = 0.3;
+
+// origin offset
+real x_offset = 0.3;
+real y_offset = 0.3;
+
+string command = "";
+
+// add all leds
+for (int row = 0; row < rows; row++){
+  for (int col = 0; col < cols; col++){
+    
+    // place LED
+    string s;
+    real x = x_offset + col * x_pitch;
+    real y = y_offset + row * y_pitch;
+    sprintf(s, "ADD LED_0603@led_matrix.lbr 'LED_%d_%d' (%f %f);\n",
+            row, col, x, y);
+    command += s;
+
+    // add row net
+    sprintf(s, "NET 'ROW%d' (%f %f) (%f %f);\n",
+            row,
+            x - 0.4,
+            y + 0.1,
+            x + 0.1,
+            y + 0.1);
+    command += s;
+
+    // add col net
+    sprintf(s, "NET 'COL%d' (%f %f) (%f %f);\n",
+            col,
+            x - 0.1,
+            y - 0.4,
+            x - 0.1,
+            y - 0.1);
+    command += s;
+
+    // add junctions
+    sprintf(s, "JUNCTION (%f %f) ;\n",
+            x - 0.1,
+            y - 0.1);
+    command += s;
+    sprintf(s, "JUNCTION (%f %f) ;\n",
+            x + 0.1,
+            y + 0.1);
+    command += s;
+  }
+}
+
+// add row headers
+for (row = 0; row < rows; row++){
+  string s;
+  real x = x_offset - 2*x_pitch;
+  real y = y_offset + row * y_pitch + 0.1;
+  sprintf(s, "ADD PIN_HDR_1@led_matrix.lbr 'HDR_ROW_%d' R180 (%f %f);\n",
+          row, x, y);
+  command += s;  
+}
+
+// add col headers
+for (int col = 0; col < cols; col++){
+  string s;
+  real x = x_offset + col * x_pitch - 0.1;
+  real y = y_offset - 2 * y_pitch;
+  sprintf(s, "ADD PIN_HDR_1@led_matrix.lbr 'HDR_COL_%d' R270 (%f %f);\n",
+          col, x, y);
+  command += s;  
+}
+
+exit(command);
