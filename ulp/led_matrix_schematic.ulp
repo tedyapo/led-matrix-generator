@@ -2,9 +2,15 @@
 // create rows x cols matrix of LEDs
 //
 
-// matrix size
-int rows = 16;
-int cols = 32;
+// default matrix size
+int rows = 10;
+int cols = 10;
+
+// allow override of size from command 
+if (argc == 3){
+  rows = strtod(argv[1]);
+  cols = strtod(argv[2]);
+}
 
 // LED symbol spacing
 real x_pitch = 0.3;
@@ -58,21 +64,41 @@ for (int row = 0; row < rows; row++){
   }
 }
 
+// add row resistors
+for (row = 0; row < rows; row++){
+  string s;
+  real x = x_offset - 2*x_pitch - 0.2;
+  real y = y_offset + row * y_pitch + 0.1;
+  sprintf(s, "ADD R0805@led_matrix.lbr 'R_ROW_%d' R90 (%f %f);\n",
+          row, x, y);
+  command += s;  
+}
+
 // add row headers
 for (row = 0; row < rows; row++){
   string s;
-  real x = x_offset - 2*x_pitch;
+  real x = x_offset - 2*x_pitch - 0.8;
   real y = y_offset + row * y_pitch + 0.1;
   sprintf(s, "ADD PIN_HDR_1@led_matrix.lbr 'HDR_ROW_%d' R180 (%f %f);\n",
           row, x, y);
   command += s;  
 }
 
-// add col headers
+// add col resistors
 for (int col = 0; col < cols; col++){
   string s;
   real x = x_offset + col * x_pitch - 0.1;
-  real y = y_offset - 2 * y_pitch;
+  real y = y_offset - 2 * y_pitch - 0.2;
+  sprintf(s, "ADD R0805@led_matrix.lbr 'R_COL_%d' R180 (%f %f);\n",
+          col, x, y);
+  command += s;  
+}
+
+// add col headers
+for (col = 0; col < cols; col++){
+  string s;
+  real x = x_offset + col * x_pitch - 0.1;
+  real y = y_offset - 2 * y_pitch - 0.8;
   sprintf(s, "ADD PIN_HDR_1@led_matrix.lbr 'HDR_COL_%d' R270 (%f %f);\n",
           col, x, y);
   command += s;  
