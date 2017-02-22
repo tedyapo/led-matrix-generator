@@ -3,6 +3,9 @@
 #
 # directly generate gcode for 3D printing segmented bezel 
 #
+# creates a 1-extrusion wide grid for creating pixels over array of
+#  small LEDs
+#
 
 import math
 
@@ -125,8 +128,8 @@ class Gcode:
     return
   
 def makeGrid(gc, rows, cols, dx, dy, height):
-  minX = 0
-  minY = 0
+  minX = - cols * dx / 2
+  minY = - rows * dy /2
   minZ = 0
   maxX = minX + cols * dx
   maxY = minY + rows * dy
@@ -135,7 +138,7 @@ def makeGrid(gc, rows, cols, dx, dy, height):
   gc.startCode()
   for layer in range(0, layers):
     z = (layer + 1) * gc.layerHeight
-    if (layer % 4) == 0:
+    if (layer % 2) == 0:
       gc.retract()
       gc.moveTo(minX, minY, z)      
       gc.unRetract()
@@ -144,12 +147,12 @@ def makeGrid(gc, rows, cols, dx, dy, height):
         if (not row % 2):
           gc.lineTo(maxX, y, z);
           if (row < rows):
-            gc.lineTo(maxX, y + dy, z)
+            gc.moveTo(maxX, y + dy, z)
         else:
           gc.lineTo(minX, y, z);
           if (row < rows):
-            gc.lineTo(minX, y + dy, z)
-    if (layer % 4) == 1:
+            gc.moveTo(minX, y + dy, z)
+    if (layer % 2) == 0:
       gc.retract()
       gc.moveTo(minX, maxY, z)      
       gc.unRetract()      
@@ -158,12 +161,12 @@ def makeGrid(gc, rows, cols, dx, dy, height):
         if (not col % 2):
           gc.lineTo(x, minY, z);
           if (col < cols):
-            gc.lineTo(x + dx, minY, z)
+            gc.moveTo(x + dx, minY, z)
         else:
           gc.lineTo(x, maxY, z);
           if (col < cols):
-            gc.lineTo(x + dx, maxY, z)
-    if (layer % 4) == 2:
+            gc.moveTo(x + dx, maxY, z)
+    if (layer % 2) == 1:
       gc.retract()
       gc.moveTo(minX, maxY, z)      
       gc.unRetract()      
@@ -172,12 +175,12 @@ def makeGrid(gc, rows, cols, dx, dy, height):
         if (not row % 2):
           gc.lineTo(maxX, y, z);
           if (row < rows):
-            gc.lineTo(maxX, y - dy, z)
+            gc.moveTo(maxX, y - dy, z)
         else:
           gc.lineTo(minX, y, z);
           if (row < rows):
-            gc.lineTo(minX, y - dy, z)
-    if (layer % 4) == 3:
+            gc.moveTo(minX, y - dy, z)
+    if (layer % 2) == 1:
       gc.retract()
       gc.moveTo(maxX, maxY, z)      
       gc.unRetract()      
@@ -186,17 +189,18 @@ def makeGrid(gc, rows, cols, dx, dy, height):
         if (not col % 2):
           gc.lineTo(x, minY, z);
           if (col < cols):
-            gc.lineTo(x - dx, minY, z)
+            gc.moveTo(x - dx, minY, z)
         else:
           gc.lineTo(x, maxY, z);
           if (col < cols):
-            gc.lineTo(x - dx, maxY, z)
+            gc.moveTo(x - dx, maxY, z)
+  gc.retract()
   gc.endCode()
 
 
 # configurable parameters
-rows = 10
-cols = 10
+rows = 16
+cols = 32
 dx = inch(0.1)
 dy = inch(0.1)
 height = inch(0.1)
