@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
 #
-# directly generate gcode for 3D printing segmented bezel 
-#
-# creates a 1-extrusion wide grid for creating pixels over array of
-#  small LEDs
+# generate gcode for printing segmented bezel 
 #
 
 import math
@@ -25,7 +22,7 @@ class Gcode:
     self.filamentDiameter = 1.68
     self.extrusionWidth = 0.42
     self.layerHeight = 0.254
-    self.extrusionCorrection = 0.75 # black PolyMax filament
+    self.extrusionCorrection = 0.715
     self.filamentCrossSection = math.pi * math.pow(self.filamentDiameter/2, 2)
     self.beadCrossSection = ( self.layerHeight * 
                               (self.extrusionWidth - self.layerHeight) +
@@ -48,17 +45,18 @@ class Gcode:
       'G90; set absolute coordinates',
       'G92 E0; reset extruder distance',
       'M140 S40;set bed pre-temperature',
-      'M190 S40; wait for bed pre-temp',
+      'M190 S35; wait for bed pre-temp',
       'M104 S140; set extruder IDLE temp and start heating',
       'M140 S50; set bed temperature',
       'M190 S45; wait for bed to heat up',
       'M104 S193; set extruder temp and start heating',
       'G1 Z5 F300 ;move platform down 5mm',
-      'G1 X160 Y130 F3000 ; move to back right corner',
+      'G1 X190 Y190 F3000 ; move to back right corner',
       'M190 S50; wait for bed to heat up',
       'M109 S193; wait for extruder temp to be reached',
-      'G1 Z0.35 F200 ;move platform close to nozzle',
-      'G1 E7; extruder anchor',
+      'G1 Z0.254 F200 ;move platform close to nozzle',
+      'G1 E10; extruder anchor',
+      'G1 Z3.0 F200 ;move platform away from nozzle',
       'G92 E0; reset extrusion distance',
       'G1 F3000; Set feed rate for first move.'
       ];
@@ -128,30 +126,24 @@ class Gcode:
     return
   
 def makeGrid(gc, rows, cols, dx, dy, height):
-  minX = - cols * dx / 2
-  minY = - rows * dy /2
+  minX = - (dx * cols) / 2
+  minY = - (dy * rows) / 2
   minZ = 0
   maxX = minX + cols * dx
   maxY = minY + rows * dy
-
   layers = int(math.floor(height / gc.layerHeight))
   gc.startCode()
+  # skirt to clear pre-blob
+  gc.retract()
+  margin_cells = 3
+  gc.moveTo(minX-dx*margin_cells, minY-dy*margin_cells, gc.layerHeight)
+  gc.unRetract()
+  gc.lineTo(minX-dx*margin_cells, maxY+dy*margin_cells, gc.layerHeight)
+  gc.lineTo(maxX+dx*margin_cells, maxY+dy*margin_cells, gc.layerHeight)
+  gc.lineTo(maxX+dx*margin_cells, minY-dy*margin_cells, gc.layerHeight)
+  gc.lineTo(minX-dx*margin_cells, minY-dy*margin_cells, gc.layerHeight)  
   for layer in range(0, layers):
     z = (layer + 1) * gc.layerHeight
-    if (layer % 2) == 0:
-      gc.retract()
-      gc.moveTo(minX, minY, z)      
-      gc.unRetract()
-      for row in range(0, rows+1):
-        y = minY + dy * row
-        if (not row % 2):
-          gc.lineTo(maxX, y, z);
-          if (row < rows):
-            gc.moveTo(maxX, y + dy, z)
-        else:
-          gc.lineTo(minX, y, z);
-          if (row < rows):
-            gc.moveTo(minX, y + dy, z)
     if (layer % 2) == 0:
       gc.retract()
       gc.moveTo(minX, maxY, z)      
@@ -159,13 +151,33 @@ def makeGrid(gc, rows, cols, dx, dy, height):
       for col in range(0, cols+1):
         x = minX + dx * col
         if (not col % 2):
-          gc.lineTo(x, minY, z);
+          gc.lineTo(x, minY, z)
           if (col < cols):
             gc.moveTo(x + dx, minY, z)
         else:
-          gc.lineTo(x, maxY, z);
+          gc.lineTo(x, maxY, z)
           if (col < cols):
             gc.moveTo(x + dx, maxY, z)
+    if (layer % 2) == 0:
+      gc.retract()
+      gc.moveTo(minX, minY, z)      
+      gc.unRetract()
+      for row in range(0, rows+1):
+        y = minY + dy * row
+        if (not row % 2):
+          for col in range(0, cols+1):
+            x = minX + dx * col
+            gc.lineTo(x-gc.extrusionWidth/2, y, z)
+            gc.moveTo(x+gc.extrusionWidth/2, y, z)
+          if (row < rows):
+            gc.moveTo(maxX, y + dy, z)
+        else:
+          for col in range(0, cols+1):            
+            x = maxX - dx * col
+            gc.lineTo(x+gc.extrusionWidth/2, y, z)
+            gc.moveTo(x-gc.extrusionWidth/2, y, z)
+          if (row < rows):
+            gc.moveTo(minX, y + dy, z)
     if (layer % 2) == 1:
       gc.retract()
       gc.moveTo(minX, maxY, z)      
@@ -173,11 +185,11 @@ def makeGrid(gc, rows, cols, dx, dy, height):
       for row in range(0, rows+1):
         y = minY + dy * (rows - row)
         if (not row % 2):
-          gc.lineTo(maxX, y, z);
+          gc.lineTo(maxX, y, z)
           if (row < rows):
             gc.moveTo(maxX, y - dy, z)
         else:
-          gc.lineTo(minX, y, z);
+          gc.lineTo(minX, y, z)          
           if (row < rows):
             gc.moveTo(minX, y - dy, z)
     if (layer % 2) == 1:
@@ -187,18 +199,23 @@ def makeGrid(gc, rows, cols, dx, dy, height):
       for col in range(0, cols + 1):
         x = minX + dx * (cols - col)
         if (not col % 2):
-          gc.lineTo(x, minY, z);
+          for row in range(0, rows+1):
+            y = maxY - dy * row
+            gc.lineTo(x, y+gc.extrusionWidth/2, z)
+            gc.moveTo(x, y-gc.extrusionWidth/2, z)
           if (col < cols):
             gc.moveTo(x - dx, minY, z)
         else:
-          gc.lineTo(x, maxY, z);
+          for row in range(0, rows+1):
+            y = minY + dy * row
+            gc.lineTo(x, y-gc.extrusionWidth/2, z)
+            gc.moveTo(x, y+gc.extrusionWidth/2, z)
           if (col < cols):
             gc.moveTo(x - dx, maxY, z)
-  gc.retract()
+  gc.retract()            
   gc.endCode()
 
 
-# configurable parameters
 rows = 16
 cols = 32
 dx = inch(0.1)
