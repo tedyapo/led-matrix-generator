@@ -1,0 +1,29 @@
+//
+// layout & route (rows x cols) matrix of 0603 LEDs
+//
+
+// parameters and defaults
+int rows = 8;
+int cols = 8;
+int reflector = 1; // flag for drawing silkscreen reflector (0, 1)
+
+if (argc >= 3){
+	// allow override of size from command 
+	rows = strtod(argv[1]);
+	cols = strtod(argv[2]);
+	reflector = strtod(argv[3]);
+}
+
+// string buffer and output variable
+string s;
+string command = "";
+
+// setup commands
+command += "GRID MM\n"; // all dimensions below to be given in mm
+sprintf(s, "SET DRILL %f;\n", via_drill);
+command += s;
+
+// TODO: adapt implementation from 100mil pattern
+
+// execute all the commands
+exit(command);
