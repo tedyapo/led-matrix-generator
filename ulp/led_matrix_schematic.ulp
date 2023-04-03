@@ -2,14 +2,42 @@
 // create rows x cols matrix of LEDs
 //
 
-// default matrix size
-int rows = 10;
-int cols = 10;
+// matrix size
+int rows = 8;
+int cols = 8;
+string packages[] = {"0603"};
+int packageIdx;
 
-// allow override of size from command 
-if (argc == 3){
-  rows = strtod(argv[1]);
-  cols = strtod(argv[2]);
+int runSettingsDlg(){
+	int l;
+	int Result = dlgDialog("LED Matrix Parameters") {
+		string slist[];
+		dlgStretch(0);
+		dlgLabel("Number of rows");
+		dlgIntEdit(rows, 1, 4096);
+		dlgLabel("Number of columns");
+		dlgIntEdit(cols, 1, 4096);
+		dlgLabel("Package");
+		dlgComboBox(packages, packageIdx);
+		dlgStretch(1);
+		dlgHBoxLayout {
+			dlgStretch(0);
+			dlgPushButton("+&OK") dlgAccept();
+			dlgStretch(1);
+			dlgPushButton("-&Cancel") dlgReject();
+			dlgStretch(0);
+		}
+		dlgStretch(0);
+	};
+	return Result;
+}
+
+if (argc >= 3){
+	// allow override of size from command 
+	rows = strtod(argv[1]);
+	cols = strtod(argv[2]);
+} else if (runSettingsDlg() == 0){
+	exit (0);
 }
 
 // LED symbol spacing
