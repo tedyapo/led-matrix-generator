@@ -5,14 +5,15 @@
 // matrix size
 int rows = 8;
 int cols = 8;
+int reflector = 1; // flag for drawing silkscreen reflector (0, 1)
 
 int patternIdx;
 string patterns[] = {
-	"2.54 mm + reflectors",
+	"2.54 mm classic",
 	"2.0 mm compact" };
 string cmds[] = {
-	"run led_matrix_layout_100mil.ulp %d %d",
-	"run led_matrix_layout_2mm.ulp %d %d" };
+	"run led_matrix_layout_100mil.ulp %d %d %d",
+	"run led_matrix_layout_2mm.ulp %d %d %d" };
 	
 int runSettingsDlg(){
 	int l;
@@ -25,6 +26,9 @@ int runSettingsDlg(){
 		dlgIntEdit(cols, 1, 4096);
 		dlgLabel("Layout pattern");
 		dlgComboBox(patterns, patternIdx);
+		dlgLabel("reflector background");
+		string reflectorOpts[] = {"Off", "On"};
+		dlgComboBox(reflectorOpts, reflector);
 		dlgStretch(1);
 		dlgHBoxLayout {
 			dlgStretch(0);
@@ -38,15 +42,11 @@ int runSettingsDlg(){
 	return Result;
 }
 
-if (argc >= 3){
-	// allow override of size from command 
-	rows = strtod(argv[1]);
-	cols = strtod(argv[2]);
-} else if (runSettingsDlg() == 0){
+if (runSettingsDlg() == 0){
 	exit (0);
 }
 
 string cmdbuf;
-sprintf(cmdbuf, cmds[patternIdx], rows, cols);
+sprintf(cmdbuf, cmds[patternIdx], rows, cols, reflector);
 exit(cmdbuf);
 

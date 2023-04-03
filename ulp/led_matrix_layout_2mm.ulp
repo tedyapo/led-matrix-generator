@@ -19,8 +19,8 @@ string s;
 string command = "";
 
 // setup commands
-command += "GRID MM\n"; // all dimensions below to be given in mm
-sprintf(s, "SET DRILL %f;\n", via_drill);
+string grid_units[] = { "MIC", "MM", "MIL", "INCH" };
+sprintf(s, "GRID %s;\n", grid_units[1]); // all dimensions below are given in: MM
 command += s;
 
 // TODO: adapt implementation from 100mil pattern

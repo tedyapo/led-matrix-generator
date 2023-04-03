@@ -19,8 +19,8 @@ string s;
 string command = "";
 
 // setup commands
-command += "GRID INCH\n"; // all dimensions below to be given in inches
-sprintf(s, "SET DRILL %f;\n", via_drill);
+string grid_units[] = { "MIC", "MM", "MIL", "INCH" };
+sprintf(s, "GRID %s;\n", grid_units[3]); // all dimensions below are given in: INCH
 command += s;
 
 // LED pad offset (dependent on LED package)
@@ -30,9 +30,14 @@ real pad_offset = 0.021;
 real width = 0.024;
 
 // via drill/dia size
+string via_shapes[] = { "SQUARE", "ROUND", "OCTAGON", "LONG", "OFFSET" };
+string via_shape = via_shapes[2];
 real annular_ring = 0.010;
 real via_drill = 0.015;
 real via_diameter = via_drill + 2 * annular_ring;
+
+sprintf(s, "SET DRILL %f;\n", via_drill);
+command += s;
 
 // via offsets
 real via_x_offset = 0.030;
@@ -86,9 +91,10 @@ for (int row = 0; row < rows; row++){
     command += s;
 
     // place column via
-    sprintf(s, "VIA 'COL%d' %f Octagon (%f %f);\n",
+    sprintf(s, "VIA 'COL%d' %f %s (%f %f);\n",
             col,
             via_diameter,
+            via_shape,
             x + via_x_offset,
             y - via_y_offset);
     command += s;
@@ -198,6 +204,7 @@ if (reflector){
 }
 
 // create silkscreen outline for LED array
+if (reflector){
 sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n",
         outline_silkscreen_width,
         x_offset - x_pitch,
@@ -211,6 +218,7 @@ sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n",
         x_offset - x_pitch,
         y_offset - y_pitch);        
 command += s;
+}
 
 // place row resistors
 for (row = 0; row < rows; row++){
