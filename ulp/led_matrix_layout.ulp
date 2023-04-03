@@ -2,14 +2,14 @@
 // layout & route (rows x cols) matrix of 0603 LEDs
 //
 
-// default matrix size
-int rows = 10;
-int cols = 10;
+// matrix size
+int rows = 8;
+int cols = 8;
 
-// allow override of size from command 
 if (argc == 3){
-  rows = strtod(argv[1]);
-  cols = strtod(argv[2]);
+	// allow override of size from command 
+	rows = strtod(argv[1]);
+	cols = strtod(argv[2]);
 }
 
 // LED pad offset (dependent on LED package)
