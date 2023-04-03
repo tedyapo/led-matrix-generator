@@ -2,15 +2,26 @@
 // layout & route (rows x cols) matrix of 0603 LEDs
 //
 
-// matrix size
+// parameters and defaults
 int rows = 8;
 int cols = 8;
+int reflector = 1; // flag for drawing silkscreen reflector (0, 1)
 
-if (argc == 3){
+if (argc >= 3){
 	// allow override of size from command 
 	rows = strtod(argv[1]);
 	cols = strtod(argv[2]);
+	reflector = strtod(argv[3]);
 }
+
+// string buffer and output variable
+string s;
+string command = "";
+
+// setup commands
+command += "GRID INCH\n"; // all dimensions below to be given in inches
+sprintf(s, "SET DRILL %f;\n", via_drill);
+command += s;
 
 // LED pad offset (dependent on LED package)
 real pad_offset = 0.021;
@@ -39,18 +50,10 @@ real y_header_offset = -0.1;
 real x_offset = 0.50;
 real y_offset = 0.50;
 
-// flag for drawing silkscreen reflector
-int reflector = 1;
-
 // silksceen stripe widths
 real long_silkscreen_width = 0.03;
 real short_silkscreen_width = 0.045;
 real outline_silkscreen_width = 0.050;
-
-string command = "";
-string s;
-sprintf(s, "SET DRILL %f;\n", via_drill);
-command += s;
 
 // place all LEDs
 for (int row = 0; row < rows; row++){
