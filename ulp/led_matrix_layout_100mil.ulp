@@ -73,7 +73,7 @@ for (int row = 0; row < rows; row++){
     command += s;
 
     // rotate LED 45 degrees
-    sprintf(s, "ROTATE R45 'LED_%d_%d';\n",
+    sprintf(s, "ROTATE =R45 'LED_%d_%d';\n",
             row, col);
     command += s;
 
