@@ -5,8 +5,12 @@
 // matrix size
 int rows = 8;
 int cols = 8;
-string packages[] = {"0603"};
+
+string packages[] = {"LED_0603"};
 int packageIdx;
+
+string headers[] = {"PIN_HDR254", "PIN_HDR200"};
+int headerIdx = 0;
 
 int runSettingsDlg(){
 	int l;
@@ -17,8 +21,10 @@ int runSettingsDlg(){
 		dlgIntEdit(rows, 1, 4096);
 		dlgLabel("Number of columns");
 		dlgIntEdit(cols, 1, 4096);
-		dlgLabel("Package");
+		dlgLabel("LED Package");
 		dlgComboBox(packages, packageIdx);
+		dlgLabel("Header Type");
+		dlgComboBox(headers, headerIdx);
 		dlgStretch(1);
 		dlgHBoxLayout {
 			dlgStretch(0);
@@ -58,7 +64,8 @@ for (int row = 0; row < rows; row++){
     string s;
     real x = x_offset + col * x_pitch;
     real y = y_offset + row * y_pitch;
-    sprintf(s, "ADD LED_0603@led_matrix.lbr 'LED_%d_%d' (%f %f);\n",
+    sprintf(s, "ADD %s@led_matrix.lbr 'LED_%d_%d' (%f %f);\n",
+	        packages[packageIdx],
             row, col, x, y);
     command += s;
 
@@ -107,7 +114,8 @@ for (row = 0; row < rows; row++){
   string s;
   real x = x_offset - 2*x_pitch - 0.8;
   real y = y_offset + row * y_pitch + 0.1;
-  sprintf(s, "ADD PIN_HDR_1@led_matrix.lbr 'HDR_ROW_%d' R180 (%f %f);\n",
+  sprintf(s, "ADD %s@led_matrix.lbr 'HDR_ROW_%d' R180 (%f %f);\n",
+          headers[headerIdx],
           row, x, y);
   command += s;  
 }
@@ -127,7 +135,8 @@ for (col = 0; col < cols; col++){
   string s;
   real x = x_offset + col * x_pitch - 0.1;
   real y = y_offset - 2 * y_pitch - 0.8;
-  sprintf(s, "ADD PIN_HDR_1@led_matrix.lbr 'HDR_COL_%d' R270 (%f %f);\n",
+  sprintf(s, "ADD %s@led_matrix.lbr 'HDR_COL_%d' R270 (%f %f);\n",
+          headers[headerIdx],
           col, x, y);
   command += s;  
 }
