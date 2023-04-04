@@ -41,7 +41,7 @@ command += s;
 
 // via offsets
 real via_x_offset = 0.030;
-real via_y_offset = 0.030;
+real via_y_offset = -0.030;
 
 // LED spacing
 real x_pitch = 0.1;
@@ -96,7 +96,7 @@ for (int row = 0; row < rows; row++){
             via_diameter,
             via_shape,
             x + via_x_offset,
-            y - via_y_offset);
+            y + via_y_offset);
     command += s;
 
     // route col trace (bottom)
@@ -104,9 +104,9 @@ for (int row = 0; row < rows; row++){
             col,
             width,
             x + via_x_offset,
-            y - via_y_offset,
+            y + via_y_offset,
             x + via_x_offset,
-            y - via_y_offset - y_pitch);                        
+            y + via_y_offset - y_pitch);                        
     command += s;
 
     // route col trace (top)
@@ -116,7 +116,7 @@ for (int row = 0; row < rows; row++){
             x - pad_offset,
             y - pad_offset,
             x + via_x_offset,
-            y - via_y_offset);                        
+            y + via_y_offset);                        
     command += s;
 
     // set wire bend to straight connection
