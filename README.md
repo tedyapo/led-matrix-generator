@@ -21,11 +21,13 @@ Select the desired number of rows, columns and appropriate header type:
 
 ![](img/led_matrix_generator_schematic.PNG)
 
+The scripts attempt to  `USE '/<path to>/library/led_matrix.lbr';` automatically. 
+
 Step 2: Switch to board view, create board from schematic if needed.
 
 Step 3:  `RUN led_matrix_layout.ulp`
 
-Currently, the choices in the layout are not stored. Please repeat the appropriate parameters when running the layout ulp script. 
+Currently, the choices in the schematic are not stored. Please repeat the appropriate parameters when running the layout ulp script. 
 
 ![](img/led_matrix_generator_board_as_created.PNG)
 

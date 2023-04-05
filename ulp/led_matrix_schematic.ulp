@@ -1,13 +1,17 @@
 //
-// create rows x cols matrix of LEDs
+// create schematic with rows x cols matrix of LEDs
 //
 
-// matrix size
+if (board) {
+	exit("RUN led_matrix_layout.ulp;\n");
+}
+
+// parameters and defaults
 int rows = 8;
-int cols = 8;
+int cols = 16;
 
 string packages[] = {"LED_0603"};
-int packageIdx;
+int packageIdx = 0;
 
 string headers[] = {"PIN_HDR254", "PIN_HDR200"};
 int headerIdx = 0;
@@ -17,9 +21,9 @@ int runSettingsDlg(){
 	int Result = dlgDialog("LED Matrix Parameters") {
 		string slist[];
 		dlgStretch(0);
-		dlgLabel("Number of rows");
+		dlgLabel("Number Of Rows");
 		dlgIntEdit(rows, 1, 4096);
-		dlgLabel("Number of columns");
+		dlgLabel("Number Of Columns");
 		dlgIntEdit(cols, 1, 4096);
 		dlgLabel("LED Package");
 		dlgComboBox(packages, packageIdx);
@@ -56,7 +60,21 @@ real y_offset = 0.3;
 
 string command = "";
 
-// add all leds
+// ensure led_matrix.lbr is being used
+string ULPPath(){
+	string ulp_path;
+	char bkslash = '/'; // always use '/' as path delimiter to keep ULPs platform-independent
+	int pos = strrchr(argv[0], bkslash);
+	if (pos >= 0) {            // split path from filename
+	   ulp_path = strsub(argv[0], 0, pos + 1);
+	   }
+	return(ulp_path);
+}
+
+string lbr_filename = ULPPath() + "/../library/led_matrix.lbr"; 
+command += "USE '" + lbr_filename + "';\n";
+
+// add LEDs and connecting wires
 for (int row = 0; row < rows; row++){
   for (int col = 0; col < cols; col++){
     

@@ -2,19 +2,13 @@
 // layout & route (rows x cols) matrix of 0603 LEDs
 //
 
-string ULPPath(){
-	string ulp_path;
-	char bkslash = '/'; // always use '/' as path delimiter to keep ULPs platform-independent
-	int pos = strrchr(argv[0], bkslash);
-	if (pos >= 0) {            // split path from filename
-	   ulp_path = strsub(argv[0], 0, pos + 1);
-	   }
-	return(ulp_path);
+if (schematic) {
+	dlgMessageBox("This ULP must be run in board view.");
+	exit("");
 }
-
 // parameters and defaults
 int rows = 8;
-int cols = 8;
+int cols = 16;
 int reflector = 1; // flag for drawing silkscreen reflector (0, 1)
 
 if (argc >= 3){
@@ -28,16 +22,26 @@ if (argc >= 3){
 string s;
 string command = "";
 
+// load design rule changes specific to this pattern and merge them
+string ULPPath(){
+	string ulp_path;
+	char bkslash = '/'; // always use '/' as path delimiter to keep ULPs platform-independent
+	int pos = strrchr(argv[0], bkslash);
+	if (pos >= 0) {            // split path from filename
+	   ulp_path = strsub(argv[0], 0, pos + 1);
+	   }
+	return(ulp_path);
+}
+
+string dru_filename = ULPPath() + "/../dru/led_matrix_layout_2mm.dru"; 
+sprintf(s, "DRC MERGE %s;\n", dru_filename);
+command += s;
+
 // setup commands
 string grid_units[] = { "MIC", "MM", "MIL", "INCH" };
 sprintf(s, "GRID %s;\n", grid_units[1]); // all dimensions below are given in: MM
 command += s;
 command += "LAYER TSTOP; GRID ON LINES; GRID 1.0;\n";
-
-string dru_filename = ULPPath() + "/../dru/led_matrix_layout_2mm.dru"; 
-// dlgMessageBox(dru_filename);
-sprintf(s, "DRC MERGE %s;\n", dru_filename);
-command += s;
 
 // via drill/dia size
 string via_shapes[] = { "SQUARE", "ROUND", "OCTAGON", "LONG", "OFFSET" };

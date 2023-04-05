@@ -2,9 +2,14 @@
 // layout & route (rows x cols) matrix of 0603 LEDs
 //
 
+if (schematic) {
+	dlgMessageBox("This ULP must be run in board view.");
+	exit("");
+}
+
 // parameters and defaults
 int rows = 8;
-int cols = 8;
+int cols = 16;
 int reflector = 1; // flag for drawing silkscreen reflector (0, 1)
 
 if (argc >= 3){

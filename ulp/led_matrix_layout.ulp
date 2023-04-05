@@ -2,30 +2,34 @@
 // layout & route (rows x cols) matrix of 0603 LEDs
 //
 
-// matrix size
+if (schematic) {
+	exit("RUN led_matrix_schematic.ulp;\n");
+}
+
+// parameters and defaults
 int rows = 8;
-int cols = 8;
+int cols = 16;
 int reflector = 1; // flag for drawing silkscreen reflector (0, 1)
 
 int patternIdx;
-string patterns[] = {
+string patternNames[] = {
 	"2.54 mm classic",
 	"2.0 mm compact" };
-string cmds[] = {
-	"run led_matrix_layout_100mil.ulp %d %d %d",
-	"run led_matrix_layout_2mm.ulp %d %d %d" };
+string patternCmds[] = {
+	"RUN led_matrix_layout_100mil.ulp %d %d %d",
+	"RUN led_matrix_layout_2mm.ulp %d %d %d" };
 	
 int runSettingsDlg(){
 	int l;
 	int Result = dlgDialog("LED Matrix Parameters") {
 		string slist[];
 		dlgStretch(0);
-		dlgLabel("Number of rows");
+		dlgLabel("Number Of Rows");
 		dlgIntEdit(rows, 1, 4096);
-		dlgLabel("Number of columns");
+		dlgLabel("Number Of Columns");
 		dlgIntEdit(cols, 1, 4096);
 		dlgLabel("Layout pattern");
-		dlgComboBox(patterns, patternIdx);
+		dlgComboBox(patternNames, patternIdx);
 		dlgLabel("reflector background");
 		string reflectorOpts[] = {"Off", "On"};
 		dlgComboBox(reflectorOpts, reflector);
@@ -46,7 +50,26 @@ if (runSettingsDlg() == 0){
 	exit (0);
 }
 
+string command;
 string cmdbuf;
-sprintf(cmdbuf, cmds[patternIdx], rows, cols, reflector);
-exit(cmdbuf);
+
+// ensure led_matrix.lbr is being used
+string ULPPath(){
+	string ulp_path;
+	char bkslash = '/'; // always use '/' as path delimiter to keep ULPs platform-independent
+	int pos = strrchr(argv[0], bkslash);
+	if (pos >= 0) {            // split path from filename
+	   ulp_path = strsub(argv[0], 0, pos + 1);
+	   }
+	return(ulp_path);
+}
+
+string lbr_filename = ULPPath() + "/../library/led_matrix.lbr"; 
+command += "USE '" + lbr_filename + "';\n";
+
+// run selected pattern script
+sprintf(cmdbuf, patternCmds[patternIdx], rows, cols, reflector);
+command += cmdbuf;
+
+exit(command);
 
