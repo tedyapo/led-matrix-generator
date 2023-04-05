@@ -179,7 +179,6 @@ for (int col = 0; col < cols; col++){
   sprintf(s, "MOVE 'R_COL_%d' (%f %f);\n",
           col, x, y);
   command += s;
-  // rotate resistor 90 degrees
   sprintf(s, "ROTATE =R90 'R_COL_%d';\n",
           col);
   command += s;

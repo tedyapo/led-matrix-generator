@@ -28,9 +28,9 @@ int runSettingsDlg(){
 		dlgIntEdit(rows, 1, 4096);
 		dlgLabel("Number Of Columns");
 		dlgIntEdit(cols, 1, 4096);
-		dlgLabel("Layout pattern");
+		dlgLabel("Layout Pattern");
 		dlgComboBox(patternNames, patternIdx);
-		dlgLabel("reflector background");
+		dlgLabel("Reflector Background");
 		string reflectorOpts[] = {"Off", "On"};
 		dlgComboBox(reflectorOpts, reflector);
 		dlgStretch(1);

@@ -232,6 +232,10 @@ for (row = 0; row < rows; row++){
   sprintf(s, "MOVE 'R_ROW_%d' (%f %f);\n",
           row, x, y);
   command += s;
+  // rotate resistor 0 degrees absolute
+  sprintf(s, "ROTATE =R0 'R_ROW_%d';\n",
+          row);
+  command += s;
   // extend trace
   sprintf(s, "LAYER 1; WIRE 'ROW%d' %f (%f %f) (%f %f);\n",
           row,
@@ -268,8 +272,8 @@ for (int col = 0; col < cols; col++){
   sprintf(s, "MOVE 'R_COL_%d' (%f %f);\n",
           col, x, y);
   command += s;
-  // rotate resistor 90 degrees
-  sprintf(s, "ROTATE R90 'R_COL_%d';\n",
+  // rotate resistor 90 degrees absolute
+  sprintf(s, "ROTATE =R90 'R_COL_%d';\n",
           col);
   command += s;
   
