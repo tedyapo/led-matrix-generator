@@ -1,0 +1,5 @@
+description[en] = <b>LED Matrix Design Rules Changes</b>\n<p></p>
+mlViaStopLimit = 0.35mm
+mvStopFrame = 0.050000
+mlMinStopFrame = 2mil
+mlMaxStopFrame = 4mil

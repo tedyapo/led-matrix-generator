@@ -2,289 +2,74 @@
 // layout & route (rows x cols) matrix of 0603 LEDs
 //
 
-// default matrix size
-int rows = 10;
-int cols = 10;
-
-// allow override of size from command 
-if (argc == 3){
-  rows = strtod(argv[1]);
-  cols = strtod(argv[2]);
+if (schematic) {
+	exit("RUN led_matrix_schematic.ulp;\n");
 }
 
-// LED pad offset (dependent on LED package)
-real pad_offset = 0.021;
+// parameters and defaults
+int rows = 8;
+int cols = 16;
+int reflector = 1; // flag for drawing silkscreen reflector (0, 1)
 
-// trace width
-real width = 0.024;
-
-// via drill/dia size
-real annular_ring = 0.010;
-real via_drill = 0.015;
-real via_diameter = via_drill + 2 * annular_ring;
-
-// via offsets
-real via_x_offset = 0.030;
-real via_y_offset = 0.030;
-
-// LED spacing
-real x_pitch = 0.1;
-real y_pitch = 0.1;
-
-// header spacing adjustments
-real x_header_offset = -0.1;
-real y_header_offset = -0.1;
-
-// origin offset
-real x_offset = 0.50;
-real y_offset = 0.50;
-
-// flag for drawing silkscreen reflector
-int reflector = 1;
-
-// silksceen stripe widths
-real long_silkscreen_width = 0.03;
-real short_silkscreen_width = 0.045;
-real outline_silkscreen_width = 0.050;
-
-string command = "";
-string s;
-sprintf(s, "SET DRILL %f;\n", via_drill);
-command += s;
-
-// place all LEDs
-for (int row = 0; row < rows; row++){
-  for (int col = 0; col < cols; col++){
-    
-    // place LED
-    string s;
-    real x = x_offset + col * x_pitch;
-    real y = y_offset + row * y_pitch;
-    sprintf(s, "MOVE 'LED_%d_%d' (%f %f);\n",
-            row, col, x, y);
-    command += s;
-
-    // rotate LED 45 degrees
-    sprintf(s, "ROTATE R45 'LED_%d_%d';\n",
-            row, col);
-    command += s;
-
-    // set bend to start-45-horizontal-end
-    command += "SET WIRE_BEND 3;\n";
-    
-    // route row trace (top)
-    sprintf(s, "LAYER 1; WIRE 'ROW%d' %f (%f %f) (%f %f);\n",
-            row,
-            width,
-            x + pad_offset - x_pitch,
-            y + pad_offset,
-            x + pad_offset,
-            y + pad_offset);
-    command += s;
-
-    // place column via
-    sprintf(s, "VIA 'COL%d' %f Octagon (%f %f);\n",
-            col,
-            via_diameter,
-            x + via_x_offset,
-            y - via_y_offset);
-    command += s;
-
-    // route col trace (bottom)
-    sprintf(s, "LAYER 16; WIRE 'COL%d' %f (%f %f) (%f %f);\n",
-            col,
-            width,
-            x + via_x_offset,
-            y - via_y_offset,
-            x + via_x_offset,
-            y - via_y_offset - y_pitch);                        
-    command += s;
-
-    // route col trace (top)
-    sprintf(s, "LAYER 1; WIRE 'COL%d' %f (%f %f) (%f %f);\n",
-            col,
-            width,
-            x - pad_offset,
-            y - pad_offset,
-            x + via_x_offset,
-            y - via_y_offset);                        
-    command += s;
-
-    // set wire bend to straight connection
-    command += "SET WIRE_BEND 2;\n";
-
-    // add silkscreen (tplace, layer 21) reflecting stripes
-    if (reflector &&
-        ((row < (rows-1) && col > 0) ||
-         (col == 0 && row == 0) ||
-         (col == (cols-1) && row == (rows-1)))){
-      sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f);\n",
-              long_silkscreen_width,
-              x - 0.5*x_pitch + 0.25 * x_pitch,
-              y - 0.5*y_pitch - 0.25 * y_pitch,
-              x + 0.5*x_pitch + 0.25 * x_pitch,
-              y + 0.5*y_pitch - 0.25 * y_pitch);
-      command += s;
-    }
-    if (reflector &&
-        row == (rows-1) && col != (cols-1)){
-      sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f);\n",
-              long_silkscreen_width,
-              x - 0.5*x_pitch + 0.25 * x_pitch,
-              y - 0.5*y_pitch - 0.25 * y_pitch,
-              x + 1.0*x_pitch + 0.25 * x_pitch,
-              y + 1.0*y_pitch - 0.25 * y_pitch);
-      command += s;
-    }
-    if (reflector &&
-        col == 0 && row > 0){
-      sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f);\n",
-              long_silkscreen_width,
-              x - 1.0*x_pitch + 0.25 * x_pitch,
-              y - 1.0*y_pitch - 0.25 * y_pitch,
-              x + 0.5*x_pitch + 0.25 * x_pitch,
-              y + 0.5*y_pitch - 0.25 * y_pitch);
-      command += s;      
-    }
-    if (reflector &&
-        row == (rows-1) && col == 0){
-      sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f);\n",
-              long_silkscreen_width,
-              x - 0.5*x_pitch - 0.25 * x_pitch,
-              y - 0.5*y_pitch + 0.25 * y_pitch,
-              x + 0.5*x_pitch - 0.25 * x_pitch,
-              y + 0.5*y_pitch + 0.25 * y_pitch);
-      command += s;
-    }
-
-    if (reflector){
-      sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f);\n",
-              short_silkscreen_width,
-              x + 0.49*x_pitch,
-              y + 0.49*y_pitch,
-              x + 0.51*x_pitch,
-              y + 0.51*y_pitch);
-      command += s;
-      sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f);\n",
-              short_silkscreen_width,
-              x - 0.49*x_pitch,
-              y - 0.49*y_pitch,
-              x - 0.51*x_pitch,
-              y - 0.51*y_pitch);
-      command += s;
-    }
-  }
+int patternIdx;
+string patternNames[] = {
+	"2.54 mm classic",
+	"2.0 mm compact" };
+string patternCmds[] = {
+	"RUN led_matrix_layout_100mil.ulp %d %d %d",
+	"RUN led_matrix_layout_2mm.ulp %d %d %d" };
+	
+int runSettingsDlg(){
+	int l;
+	int Result = dlgDialog("LED Matrix Parameters") {
+		string slist[];
+		dlgStretch(0);
+		dlgLabel("Number Of Rows");
+		dlgIntEdit(rows, 1, 4096);
+		dlgLabel("Number Of Columns");
+		dlgIntEdit(cols, 1, 4096);
+		dlgLabel("Layout Pattern");
+		dlgComboBox(patternNames, patternIdx);
+		dlgLabel("Reflector Background");
+		string reflectorOpts[] = {"Off", "On"};
+		dlgComboBox(reflectorOpts, reflector);
+		dlgStretch(1);
+		dlgHBoxLayout {
+			dlgStretch(0);
+			dlgPushButton("+&OK") dlgAccept();
+			dlgStretch(1);
+			dlgPushButton("-&Cancel") dlgReject();
+			dlgStretch(0);
+		}
+		dlgStretch(0);
+	};
+	return Result;
 }
 
-// corner reflector dots
-if (reflector){
-  sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f);\n",
-          short_silkscreen_width,
-          x_offset - 0.49*x_pitch,
-          y_offset + (rows-1)*y_pitch + 0.49*y_pitch,
-          x_offset - 0.51*x_pitch,
-          y_offset + (rows-1)*y_pitch + 0.51*y_pitch);
-  command += s;
-  sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f);\n",
-          short_silkscreen_width,
-          x_offset + (cols-1)*x_pitch + 0.49*x_pitch,
-          y_offset - .49*y_pitch,
-          x_offset + (cols-1)*x_pitch + 0.51*x_pitch,
-          y_offset - .51*y_pitch);
-  command += s;  
+if (runSettingsDlg() == 0){
+	exit (0);
 }
 
-// create silkscreen outline for LED array
-sprintf(s, "LAYER 21; WIRE %f (%f %f) (%f %f) (%f %f) (%f %f) (%f %f);\n",
-        outline_silkscreen_width,
-        x_offset - x_pitch,
-        y_offset - y_pitch,
-        x_offset - x_pitch,
-        y_offset + rows * y_pitch,
-        x_offset + cols * x_pitch,
-        y_offset + rows * y_pitch,
-        x_offset + cols * x_pitch,
-        y_offset - y_pitch,
-        x_offset - x_pitch,
-        y_offset - y_pitch);        
-command += s;
+string command;
+string cmdbuf;
 
-// place row resistors
-for (row = 0; row < rows; row++){
-  real x = x_offset - x_pitch + x_header_offset;
-  real y = y_offset + row * y_pitch + pad_offset;
-  sprintf(s, "MOVE 'R_ROW_%d' (%f %f);\n",
-          row, x, y);
-  command += s;
-  // extend trace
-  sprintf(s, "LAYER 1; WIRE 'ROW%d' %f (%f %f) (%f %f);\n",
-          row,
-          width,
-          x + 0.05,
-          y,
-          x + 0.2,
-          y);
-  command += s;
+// ensure led_matrix.lbr is being used
+string ULPPath(){
+	string ulp_path;
+	char bkslash = '/'; // always use '/' as path delimiter to keep ULPs platform-independent
+	int pos = strrchr(argv[0], bkslash);
+	if (pos >= 0) {            // split path from filename
+	   ulp_path = strsub(argv[0], 0, pos + 1);
+	   }
+	return(ulp_path);
 }
 
-// place row headers
-for (row = 0; row < rows; row++){
-  real x = x_offset - x_pitch + x_header_offset - 0.15;
-  real y = y_offset + row * y_pitch + pad_offset;
-  sprintf(s, "MOVE 'HDR_ROW_%d' (%f %f);\n",
-          row, x, y);
-  command += s;
-  // extend trace
-  sprintf(s, "LAYER 1; WIRE 'ROW_IN_%d' %f (%f %f) (%f %f);\n",
-          row,
-          width,
-          x,
-          y,
-          x + 0.1,
-          y);
-  command += s;
-}
+string lbr_filename = ULPPath() + "/../library/led_matrix.lbr"; 
+command += "USE '" + lbr_filename + "';\n";
 
-// place col resistors
-for (int col = 0; col < cols; col++){
-  real x = x_offset + col * x_pitch + via_x_offset;
-  real y = y_offset - y_pitch + y_header_offset;
-  sprintf(s, "MOVE 'R_COL_%d' (%f %f);\n",
-          col, x, y);
-  command += s;
-  // rotate resistor 90 degrees
-  sprintf(s, "ROTATE R90 'R_COL_%d';\n",
-          col);
-  command += s;
-  
-  // connect trace
-  sprintf(s, "LAYER 1; WIRE 'COL%d' %f (%f %f) (%f %f);\n",
-          col,
-          width,
-          x,
-          y + 0.025,
-          x,
-          y + 0.175);                        
-  command += s;
-}
+// run selected pattern script
+sprintf(cmdbuf, patternCmds[patternIdx], rows, cols, reflector);
+command += cmdbuf;
 
-// place col headers
-for (col = 0; col < cols; col++){
-  real x = x_offset + col * x_pitch + via_x_offset;
-  real y = y_offset - y_pitch + y_header_offset - 0.15;
-  sprintf(s, "MOVE 'HDR_COL_%d' (%f %f);\n",
-          col, x, y);
-  command += s;
-  // extend trace
-  sprintf(s, "LAYER 1; WIRE 'COL_IN_%d' %f (%f %f) (%f %f);\n",
-          col,
-          width,
-          x,
-          y,
-          x,
-          y + 0.125);                        
-  command += s;
-}
-
-// execute all the commands
 exit(command);
+

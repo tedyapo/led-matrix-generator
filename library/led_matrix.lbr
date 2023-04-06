@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.5.0">
+<eagle version="7.7.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -60,8 +60,8 @@
 <library>
 <packages>
 <package name="LED_0603">
-<smd name="A" x="-0.75" y="0" dx="0.8" dy="0.8" layer="1"/>
-<smd name="C" x="0.75" y="0" dx="0.8" dy="0.8" layer="1"/>
+<smd name="A" x="-0.75" y="0" dx="0.8" dy="0.8" layer="1" roundness="67"/>
+<smd name="C" x="0.75" y="0" dx="0.8" dy="0.8" layer="1" roundness="67"/>
 <wire x1="-0.5" y1="0.4" x2="-0.5" y2="-0.4" width="0.1" layer="51"/>
 <wire x1="0.5" y1="-0.4" x2="0.5" y2="0.4" width="0.1" layer="51"/>
 <wire x1="0.5" y1="0.4" x2="-0.5" y2="0.4" width="0.1" layer="51"/>
@@ -81,7 +81,7 @@
 <wire x1="0.5" y1="-0.4" x2="0.8" y2="-0.4" width="0.1" layer="51"/>
 <wire x1="0.8" y1="-0.4" x2="0.8" y2="-0.2" width="0.1" layer="51"/>
 </package>
-<package name="PIN_HDR_1">
+<package name="PIN_HDR_2.54">
 <pad name="P$1" x="0" y="0" drill="1" diameter="1.778" shape="octagon"/>
 <wire x1="-1.27" y1="1.27" x2="-1.27" y2="-1.27" width="0.254" layer="21"/>
 <wire x1="-1.27" y1="-1.27" x2="1.27" y2="-1.27" width="0.254" layer="21"/>
@@ -123,6 +123,9 @@
 <wire x1="1.4" y1="0.7" x2="1.4" y2="-0.7" width="0.127" layer="21"/>
 <wire x1="1.4" y1="-0.7" x2="-1.4" y2="-0.7" width="0.127" layer="21"/>
 <wire x1="-1.4" y1="-0.7" x2="-1.4" y2="0.7" width="0.127" layer="21"/>
+</package>
+<package name="PIN_HDR_2.0">
+<pad name="P$1" x="0" y="0" drill="0.7" diameter="1.2" shape="square"/>
 </package>
 </packages>
 <symbols>
@@ -174,12 +177,20 @@
 </device>
 </devices>
 </deviceset>
-<deviceset name="PIN_HDR_1">
+<deviceset name="PIN_HDR" prefix="254">
 <gates>
 <gate name="G$1" symbol="PIN_HDR_1" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="PIN_HDR_1">
+<device name="254" package="PIN_HDR_2.54">
+<connects>
+<connect gate="G$1" pin="P$1" pad="P$1"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="200" package="PIN_HDR_2.0">
 <connects>
 <connect gate="G$1" pin="P$1" pad="P$1"/>
 </connects>
