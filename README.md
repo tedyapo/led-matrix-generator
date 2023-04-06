@@ -37,7 +37,7 @@ Result (2.0 mm pattern):
  
 ## Adding New Patterns
 
-These patterns are individually optimized, and new ones can be added in `led_matrix_layout.ulp`:
+These patterns are individually optimized, and new ones can be added in `led_matrix_layout.ulp` and `/ulp` subdirectory:
 
 ```c
 int patternIdx;
@@ -49,7 +49,7 @@ string cmds[] = {
 	"RUN led_matrix_layout_2mm.ulp %d %d %d" };
 ```
 
-Partial design rule files with matching names are located in the `ulp/` subdirectory and intended to be merged with existing rules in the board file to control solder mask expansion and via covering. (Tighter layouts are more susceptible to solder wicking).
+Partial design rule files with matching names are located in the `dru/` subdirectory and intended to be merged with existing rules in the board file to control solder mask expansion and via covering. (Tighter layouts are more susceptible to solder wicking).
 
 ## Links
 
